@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: fastapi-sqlite-starter
+Version: 0.2.0
+Requires-Python: >=3.11
+Requires-Dist: fastapi<0.116,>=0.115
+Requires-Dist: uvicorn[standard]<0.31,>=0.30
+Requires-Dist: sqlalchemy<2.1,>=2.0
+Requires-Dist: sqlmodel==0.0.21
+Requires-Dist: pydantic<2.10,>=2.8
+Requires-Dist: pydantic-settings>=2.3.0

@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+app/database.py
+app/deps.py
+app/main.py
+app/models.py
+app/schemas.py
+fastapi_sqlite_starter.egg-info/PKG-INFO
+fastapi_sqlite_starter.egg-info/SOURCES.txt
+fastapi_sqlite_starter.egg-info/dependency_links.txt
+fastapi_sqlite_starter.egg-info/requires.txt
+fastapi_sqlite_starter.egg-info/top_level.txt
