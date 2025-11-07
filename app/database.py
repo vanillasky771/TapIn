@@ -18,6 +18,10 @@ def init_db():
     from app import models  # ensure models are imported
     SQLModel.metadata.create_all(engine)
 
+def get_db():
+    with Session(engine) as session:
+        yield session
+        
 def get_session():
     with Session(engine) as session:
         yield session

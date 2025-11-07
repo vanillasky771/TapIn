@@ -11,6 +11,7 @@ class EventBase(BaseModel):
     starts_at: datetime = Field(alias="datetime")
     status: str = "planned"
     basic_point: int = Field(default=0, alias="basicPoint")  # NEW
+    creator_pin: str | None = Field(default=None, alias="creatorPin")
 
 class EventCreate(EventBase):
     pass
@@ -31,6 +32,8 @@ class EventRead(BaseModel):
     starts_at: datetime = Field(alias="datetime")
     status: str
     basic_point: int = Field(alias="basicPoint")  # NEW
+    created_by_name: str | None = None
+    created_by_pin_id: int | None = None
 
 # ===== Member =====
 
@@ -45,6 +48,9 @@ class MemberBase(BaseModel):
     birthday: date | None = None
     age: str | None
     status: str | None
+    created_by_name: str | None = None
+    created_by_pin_id: int | None = None
+    creator_pin: str | None = Field(default=None, alias="creatorPin")
 
 class MemberCreate(MemberBase):
     pass

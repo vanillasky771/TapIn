@@ -22,6 +22,8 @@ class Event(SQLModel, table=True):
     starts_at: datetime = Field(index=True)
     status: str = Field(default="planned", index=True)
     basic_point: int = Field(default=0, index=True)
+    created_by_pin_id: int | None = Field(default=None, foreign_key="pin.id")
+    created_by_name: str | None = None
 
 class Member(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -37,3 +39,10 @@ class Member(SQLModel, table=True):
 
     points: int = Field(default=0, index=True)        # accumulated points
     total_score: int = Field(default=0, index=True)   # sum of all event scores for this member
+    created_by_pin_id: int | None = Field(default=None, foreign_key="pin.id")
+    created_by_name: str | None = None
+
+class Pin(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    pin: str = Field(max_length=4, index=True)

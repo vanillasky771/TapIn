@@ -4,8 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from typing import List
 from sqlmodel import Session, select
-from app.database import init_db, settings
+from app.database import init_db, settings, get_db
+from app import pin_routes
 from app.models import Event, Member, EventMemberLink
+from app.pin_routes import must_get_valid_pin
 from app.schemas import (
     EventCreate, EventRead, EventUpdate,
     MemberCreate, MemberRead, MemberUpdate, MemberInEventRead,
@@ -15,6 +17,7 @@ from app.schemas import (
 from app.deps import get_db, must_get_event, must_get_member
 
 app = FastAPI(title="Events & Members API (SQLite)")
+app.include_router(pin_routes.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,9 +44,32 @@ def list_events(db: Session = Depends(get_db)):
 
 @app.post("/events", response_model=EventRead, status_code=status.HTTP_201_CREATED)
 def create_event(data: EventCreate, db: Session = Depends(get_db)):
-    event = Event(**data.model_dump(by_alias=False))
-    db.add(event); db.commit(); db.refresh(event)
-    return event
+    """Create a new event and record who created it."""
+    created_by_pin_id = None
+    created_by_name = None
+
+    # if creatorPin provided, fetch pin record
+    if data.creator_pin:
+        pin_row = must_get_valid_pin(data.creator_pin, db)
+        created_by_pin_id = pin_row.id
+        created_by_name = pin_row.name
+
+    # get plain dict using *field names* (starts_at, basic_point, creator_pin, ...)
+    payload = data.model_dump(by_alias=False, exclude={"creator_pin"})
+
+    # Event model should have starts_at and basic_point fields
+    event = Event(
+        **payload,
+        created_by_pin_id=created_by_pin_id,
+        created_by_name=created_by_name,
+    )
+
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+
+    # Let Pydantic do the mapping (starts_at -> "datetime", basic_point -> "basicPoint")
+    return EventRead.model_validate(event)
 
 @app.get("/events/{event_id}", response_model=EventRead)
 def get_event(event_id: int, db: Session = Depends(get_db)):
@@ -126,10 +152,27 @@ def list_members(db: Session = Depends(get_db)):
 
 @app.post("/members", response_model=MemberRead, status_code=status.HTTP_201_CREATED)
 def create_member(data: MemberCreate, db: Session = Depends(get_db)):
-    member = Member(**data.model_dump(by_alias=False))
-    db.add(member); db.commit(); db.refresh(member)
-    return member
+    created_by_pin_id = None
+    created_by_name = None
 
+    if data.creator_pin:
+        pin_row = must_get_valid_pin(data.creator_pin, db)
+        created_by_pin_id = pin_row.id
+        created_by_name = pin_row.name
+
+    payload = data.model_dump(by_alias=False, exclude={"creator_pin"})
+
+    member = Member(
+        **payload,
+        created_by_pin_id=created_by_pin_id,
+        created_by_name=created_by_name,
+    )
+
+    db.add(member)
+    db.commit()
+    db.refresh(member)
+
+    return MemberRead.model_validate(member)
 
 @app.post("/members/{card_id}", response_model=MemberRead)
 def update_member_post_by_card(card_id: str, data: MemberUpdate, db: Session = Depends(get_db)):
