@@ -2,5 +2,6 @@ fastapi
 uvicorn[standard]
 sqlmodel
 pydantic
+pydantic-settings
 psycopg2-binary
 python-dotenv
