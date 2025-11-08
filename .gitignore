@@ -2,3 +2,6 @@ app.db
 __pycache__/
 venv/
 .env
+app.db
+*.sqlite
+*.sqlite3
