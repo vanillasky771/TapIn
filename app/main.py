@@ -55,7 +55,10 @@ def create_event(data: EventCreate, db: Session = Depends(get_db)):
         created_by_name = pin_row.name
 
     # get plain dict using *field names* (starts_at, basic_point, creator_pin, ...)
-    payload = data.model_dump(by_alias=False, exclude={"creator_pin"})
+    payload = data.model_dump(
+        by_alias=False,
+        exclude={"creator_pin", "created_by_pin_id", "created_by_name"},
+    )
 
     # Event model should have starts_at and basic_point fields
     event = Event(
@@ -160,7 +163,10 @@ def create_member(data: MemberCreate, db: Session = Depends(get_db)):
         created_by_pin_id = pin_row.id
         created_by_name = pin_row.name
 
-    payload = data.model_dump(by_alias=False, exclude={"creator_pin"})
+    payload = data.model_dump(
+        by_alias=False,
+        exclude={"creator_pin", "created_by_pin_id", "created_by_name"},
+    )
 
     member = Member(
         **payload,
